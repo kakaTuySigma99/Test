@@ -148,10 +148,15 @@ end)
 
 local AutoQuestRemote = ReplicatedStorage:WaitForChild("Resource"):WaitForChild("Remotes"):WaitForChild("Bindable"):WaitForChild("Compliments")
 
+local questOptions = {}
+for i = 1, 35 do
+    table.insert(questOptions, tostring(i))
+end
+
 local QuestDropdown = MainTab:AddDropdown({
     Name = "Choose Quest",
     Default = "1",
-    Options = {"1","2","3","4","5","6","7","8","9","10"},
+    Options = questOptions,
     Callback = function(value)
         SelectedQuest = value
     end
@@ -169,7 +174,7 @@ MainTab:AddToggle({
                         local args = {{Quest = "Quest "..SelectedQuest, Type = "RepeatQuest"}}
                         AutoQuestRemote:FireServer(unpack(args))
                     end
-                    task.wait(0.5)
+                    task.wait(0.1)
                 end
             end)
         end
