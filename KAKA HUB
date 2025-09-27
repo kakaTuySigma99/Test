@@ -11,6 +11,20 @@ local Window = OrionLib:MakeWindow({
     ConfigFolder = "KakaHub"
 })
 
+local NoteTab = Window:MakeTab({
+    Name = "Note",
+    PremiumOnly = false
+})
+
+NoteTab:AddLabel("Re-load Your GUI if Script Update")
+
+NoteTab:AddButton({
+    Name = "Reload GUI",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/kakaTuySigma99/Test/refs/heads/main/KAKA%20HUB"))()
+    end
+})
+
 local MainTab = Window:MakeTab({
     Name = "Main",
     PremiumOnly = false
@@ -181,24 +195,22 @@ MainTab:AddToggle({
     end
 })
 
-local InsantKillActive = false
+local AutoKillNearestActive = false
 
 MainTab:AddToggle({
     Name = "Auto Kill Nearest Mob",
     Default = false,
     Callback = function(state)
-        InstantKillActive = state
+        AutoKillNearestActive = state
     end
 })
 
 task.spawn(function()
     while true do
-        if InsantKillActive then
+        if AutoKillNearestActive then
             for _, mob in pairs(workspace.Mobs:GetChildren()) do
                 if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
-                    if mob.Humanoid.Health < mob.Humanoid.MaxHealth then
-                        mob.Humanoid.Health = 0
-                    end
+                    mob.Humanoid.Health = 0
                 end
             end
         end
