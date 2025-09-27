@@ -24,10 +24,11 @@ local PositionMode = "Above"
 local function getMobs()
     local mobNames = {}
     for _, mob in pairs(workspace.Mobs:GetChildren()) do
-        if not mob:IsA("Model") then continue end
-        local cleanName = mob.Name:gsub("%(.*%)","")
-        if not table.find(mobNames, cleanName) then
-            table.insert(mobNames, cleanName)
+        if mob:IsA("Model") then
+            local cleanName = mob.Name:gsub("%(.*%)", ""):gsub("^%s*(.-)%s*$", "%1") -- Trim whitespace
+            if not table.find(mobNames, cleanName) then
+                table.insert(mobNames, cleanName)
+            end
         end
     end
     return mobNames
@@ -45,7 +46,7 @@ local MobDropdown = MainTab:AddDropdown({
 MainTab:AddButton({
     Name = "Refresh Mobs",
     Callback = function()
-        MobDropdown:Refresh(getMobs())
+        MobDropdown:Refresh(getMobs(), true) -- Clear existing options before refreshing
     end
 })
 
