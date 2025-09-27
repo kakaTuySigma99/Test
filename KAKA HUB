@@ -75,7 +75,7 @@ MainTab:AddDropdown({
 local M1Remote = ReplicatedStorage:WaitForChild("Resource"):WaitForChild("Remotes"):WaitForChild("M1")
 
 MainTab:AddToggle({
-    Name = "Auto Farm",
+    Name = "Auto Farm Mob",
     Default = false,
     Callback = function(state)
         AutoFarmActive = state
@@ -84,43 +84,38 @@ MainTab:AddToggle({
                 while AutoFarmActive do
                     if SelectedMob then
                         local mob = workspace.Mobs:FindFirstChild(SelectedMob)
-                        local char = LocalPlayer.Character
-                        if mob and mob:FindFirstChild("HumanoidRootPart") 
-                           and mob:FindFirstChildOfClass("Humanoid") 
-                           and mob.Humanoid.Health > 0
-                           and char and char:FindFirstChild("HumanoidRootPart") then
-                            
-                            local hrp = char.HumanoidRootPart
-                            local targetHRP = mob.HumanoidRootPart
-                            local targetPos = targetHRP.Position
+                        if mob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChildOfClass("Humanoid") and mob:FindFirstChildOfClass("Humanoid").Health > 0 then
+                            local hrp = LocalPlayer.Character.HumanoidRootPart
+                            local mobHRP = mob.HumanoidRootPart
 
+                            local offset
                             if PositionMode == "Above" then
-                                targetPos = targetPos + Vector3.new(0, AboveHeight, 0)
+                                offset = Vector3.new(0, OffsetValue, 0)
                             elseif PositionMode == "Below" then
-                                targetPos = targetPos - Vector3.new(0, AboveHeight, 0)
+                                offset = Vector3.new(0, -OffsetValue, 0)
                             elseif PositionMode == "Behind" then
-                                targetPos = targetPos - targetHRP.CFrame.LookVector * AboveHeight
+                                local dir = (hrp.Position - mobHRP.Position).Unit
+                                offset = dir * 2
+                            else
+                                offset = Vector3.new(0, OffsetValue, 0)
                             end
 
-                            hrp.CFrame = CFrame.lookAt(targetPos, targetHRP.Position)
+                            hrp.CFrame = CFrame.lookAt(mobHRP.Position + offset, mobHRP.Position)
 
                             local args = {{
                                 type = "M1",
                                 InAir = false,
                                 UpTilt = false
                             }}
-                            pcall(function()
-                                M1Remote:FireServer(unpack(args))
-                            end)
+                            M1Remote:FireServer(unpack(args))
                         end
                     end
-                    RunService.Heartbeat:Wait()
+                    game:GetService("RunService").Heartbeat:Wait()
                 end
             end)
         end
     end
 })
-
 
 local AutoQuestRemote = ReplicatedStorage:WaitForChild("Resource"):WaitForChild("Remotes"):WaitForChild("Bindable"):WaitForChild("Compliments")
 
