@@ -21,16 +21,16 @@ local AboveHeight = 2
 local AutoFarmActive = false
 local PositionMode = "Above"
 
+local SelectedMob = nil
 local function getUniqueMobs()
     local mobNames = {}
-    local seen = {}
+    local added = {}
     for _, mob in pairs(workspace.Mobs:GetChildren()) do
-        if not mob:IsA("Model") then continue end
-        if Players:FindFirstChild(mob.Name) then continue end
-        local cleanName = mob.Name
-        if not seen[cleanName] then
-            seen[cleanName] = true
-            table.insert(mobNames, cleanName)
+        if not game.Players:FindFirstChild(mob.Name) then
+            if not added[mob.Name] then
+                table.insert(mobNames, mob.Name)
+                added[mob.Name] = true
+            end
         end
     end
     return mobNames
@@ -48,8 +48,13 @@ local MobDropdown = MainTab:AddDropdown({
 MainTab:AddButton({
     Name = "Refresh Mobs",
     Callback = function()
-        SelectedMob = nil
-        MobDropdown:Refresh(getUniqueMobs())
+        local options = getUniqueMobs()
+        MobDropdown:Refresh(options)
+        if SelectedMob and table.find(options, SelectedMob) then
+            MobDropdown:SetSelected(SelectedMob)
+        else
+            SelectedMob = nil
+        end
     end
 })
 
