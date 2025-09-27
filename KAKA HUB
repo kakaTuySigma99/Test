@@ -1,0 +1,373 @@
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/jensonhirst/Orion/main/source"))()
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Window = OrionLib:MakeWindow({
+    Name = "Kaka Hub",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "KakaHub"
+})
+
+local MainTab = Window:MakeTab({
+    Name = "Main",
+    PremiumOnly = false
+})
+
+local SelectedMob = nil
+local AboveHeight = 2
+local AutoFarmActive = false
+local SelectedQuest = "1"
+local AutoQuestActive = false
+
+local function getUniqueMobs()
+    local mobNames = {}
+    local seenNames = {}
+    for _, mob in pairs(workspace.Mobs:GetChildren()) do
+        local name = mob.Name
+        if not seenNames[name] then
+            table.insert(mobNames, name)
+            seenNames[name] = true
+        end
+    end
+    return mobNames
+end
+
+local MobDropdown = MainTab:AddDropdown({
+    Name = "Select Mob",
+    Default = "",
+    Options = getUniqueMobs(),
+    Callback = function(value)
+        SelectedMob = value
+    end
+})
+
+MainTab:AddButton({
+    Name = "Refresh Mobs",
+    Callback = function()
+        SelectedMob = nil
+        MobDropdown:Refresh(getUniqueMobs())
+    end
+})
+
+MainTab:AddTextbox({
+    Name = "Distance Mob",
+    Default = "2",
+    TextDisappear = false,
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then AboveHeight = num end
+    end
+})
+
+local AutoFarmPosition = "Above"
+
+MainTab:AddDropdown({
+    Name = "Spot",
+    Default = "Above",
+    Options = {"Above", "Below", "Behind"},
+    Callback = function(value)
+        AutoFarmPosition = value
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Auto Farm",
+    Default = false,
+    Callback = function(state)
+        AutoFarmActive = state
+        if state then
+            task.spawn(function()
+                while AutoFarmActive do
+                    if SelectedMob then
+                        local mob = workspace.Mobs:FindFirstChild(SelectedMob)
+                        if mob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChildOfClass("Humanoid") and mob:FindFirstChildOfClass("Humanoid").Health > 0 then
+                            local hrp = LocalPlayer.Character.HumanoidRootPart
+                            local targetHRP = mob.HumanoidRootPart
+                            local offset = Vector3.new(0, AboveHeight, 0)
+
+                            if AutoFarmPosition == "Above" then
+                                offset = Vector3.new(0, AboveHeight, 0)
+                            elseif AutoFarmPosition == "Below" then
+                                offset = Vector3.new(0, -AboveHeight, 0)
+                            elseif AutoFarmPosition == "Behind" then
+                                offset = targetHRP.CFrame.LookVector * -AboveHeight
+                            end
+
+                            hrp.CFrame = CFrame.lookAt(targetHRP.Position + offset, targetHRP.Position)
+                            local args = {{
+                                type = "M1",
+                                InAir = false,
+                                UpTilt = false
+                            }}
+                            M1Remote:FireServer(unpack(args))
+                        end
+                    end
+                    RunService.Heartbeat:Wait()
+                end
+            end)
+        end
+    end
+})
+
+local AutoQuestRemote = ReplicatedStorage:WaitForChild("Resource"):WaitForChild("Remotes"):WaitForChild("Bindable"):WaitForChild("Compliments")
+
+local QuestDropdown = MainTab:AddDropdown({
+    Name = "Choose Quest",
+    Default = "1",
+    Options = {"1","2","3","4","5","6","7","8","9","10"},
+    Callback = function(value)
+        SelectedQuest = value
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Auto Get Quest",
+    Default = false,
+    Callback = function(state)
+        AutoQuestActive = state
+        if state then
+            task.spawn(function()
+                while AutoQuestActive do
+                    if SelectedQuest then
+                        local args = {{Quest = "Quest "..SelectedQuest, Type = "RepeatQuest"}}
+                        AutoQuestRemote:FireServer(unpack(args))
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end
+})
+
+local SelectedTool = nil
+local AutoEquip = false
+
+local function getTools()
+    local tools = {}
+    if LocalPlayer.Backpack then
+        for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+            if item:IsA("Tool") then
+                table.insert(tools, item.Name)
+            end
+        end
+    end
+    return tools
+end
+
+local ToolDropdown = MainTab:AddDropdown({
+    Name = "Select Tool",
+    Default = "",
+    Options = getTools(),
+    Callback = function(value)
+        SelectedTool = value
+    end
+})
+
+MainTab:AddButton({
+    Name = "Refresh Tools",
+    Callback = function()
+        ToolDropdown:Refresh(getTools())
+    end
+})
+
+MainTab:AddToggle({
+    Name = "Auto Equip Tool",
+    Default = false,
+    Callback = function(state)
+        AutoEquip = state
+        if state then
+            task.spawn(function()
+                while AutoEquip do
+                    local backpack = LocalPlayer:FindFirstChild("Backpack")
+                    local char = LocalPlayer.Character
+                    if backpack and SelectedTool then
+                        local tool = backpack:FindFirstChild(SelectedTool)
+                        if not tool and char then
+                            tool = char:FindFirstChild(SelectedTool)
+                        end
+                        if tool then
+                            LocalPlayer.Character.Humanoid:EquipTool(tool)
+                        end
+                    end
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+
+local StatsTab = Window:MakeTab({
+    Name = "Stats",
+    PremiumOnly = false
+})
+
+local Stats = {
+    {Name = "Power", Type = "P"},
+    {Name = "Sword", Type = "S"},
+    {Name = "Health", Type = "H"},
+    {Name = "Melee", Type = "M"}
+}
+
+local ComplimentsRemote = ReplicatedStorage:WaitForChild("Resource")
+    :WaitForChild("Remotes")
+    :WaitForChild("Bindable")
+    :WaitForChild("Compliments")
+
+local StatAmount = 1
+local StatToggles = {}
+
+local function fireStat(statType)
+    local args = {{Type = "StatsAdd", C = statType, Amount = StatAmount}}
+    pcall(function()
+        ComplimentsRemote:FireServer(unpack(args))
+    end)
+end
+
+StatsTab:AddTextbox({
+    Name = "Amount",
+    Default = "1",
+    TextDisappear = false,
+    Callback = function(value)
+        local num = tonumber(value)
+        if num then
+            StatAmount = num
+        end
+    end
+})
+
+for _, stat in ipairs(Stats) do
+    StatToggles[stat.Name] = false
+    StatsTab:AddToggle({
+        Name = "Auto "..stat.Name,
+        Default = false,
+        Callback = function(state)
+            StatToggles[stat.Name] = state
+            if state then
+                task.spawn(function()
+                    while StatToggles[stat.Name] do
+                        fireStat(stat.Type)
+                        task.wait(0.1)
+                    end
+                end)
+            end
+        end
+    })
+end
+
+local TeleportTab = Window:MakeTab({
+    Name = "Teleport",
+    PremiumOnly = false
+})
+
+local SelectedNPC = nil
+
+local function getNPCs()
+    local npcList = {}
+    local nameCount = {}
+    for _, npc in pairs(workspace.StaticNpcs:GetChildren()) do
+        local name = npc.Name
+        if nameCount[name] then
+            nameCount[name] = nameCount[name] + 1
+            name = name .. "-" .. nameCount[name]
+        else
+            nameCount[name] = 1
+        end
+        table.insert(npcList, name)
+    end
+    return npcList
+end
+
+local NPCDropdown = TeleportTab:AddDropdown({
+    Name = "Select NPC",
+    Default = "",
+    Options = getNPCs(),
+    Callback = function(value)
+        SelectedNPC = value
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "Refresh NPCs",
+    Callback = function()
+        NPCDropdown:Refresh(getNPCs())
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "Teleport",
+    Callback = function()
+        if SelectedNPC then
+            local realName = SelectedNPC:match("^(.-)%-%d+$") or SelectedNPC
+            local count = 0
+            for _, npc in pairs(workspace.StaticNpcs:GetChildren()) do
+                if npc.Name == realName then
+                    count = count + 1
+                    if count == tonumber(SelectedNPC:match("%-(%d+)$") or 1) then
+                        if npc:FindFirstChild("HumanoidRootPart") then
+                            LocalPlayer.Character.HumanoidRootPart.CFrame = npc.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+                        end
+                        break
+                    end
+                end
+            end
+        end
+    end
+})
+
+local MiscTab = Window:MakeTab({
+    Name = "Misc",
+    PremiumOnly = false
+})
+
+MiscTab:AddButton({
+    Name = "Redeem All Codes",
+    Callback = function()
+        local codes = {
+            "1MVisits",
+            "100KMemberswow",
+            "2KActivesNicceee",
+            "SORRYFORSOULREAPERDELAY",
+            "75KPEAKMEMBERS",
+            "25KLLIKESSTHUMB",
+            "50KTHUMBUP",
+            "500KVISITSS",
+            "750KVISITSS",
+            "300KVISITS",
+            "NEWUPDCOMINGSOON",
+            "20KLIKESWOW",
+            "500KVISITSNICEE",
+            "200KVISITS",
+            "10KLIKESS",
+            "150KVISITS",
+            "5KFavssss",
+            "5KLIKESSSLEZGO"
+        }
+
+        local remote = game:GetService("ReplicatedStorage")
+            :WaitForChild("Resource")
+            :WaitForChild("Remotes")
+            :WaitForChild("Bindable")
+            :WaitForChild("Server")
+
+        task.spawn(function()
+            for _, code in ipairs(codes) do
+                local args = {
+                    {
+                        Arg = "Codes",
+                        Code = code
+                    }
+                }
+                pcall(function()
+                    remote:InvokeServer(unpack(args))
+                end)
+                task.wait(1)
+            end
+        end)
+    end
+})
+
+OrionLib:Init()
