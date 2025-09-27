@@ -223,6 +223,9 @@ end)
 
 MainTab:AddLabel("So how it work basically good for moveset")
 MainTab:AddLabel("if you use you move at mob it will auto kill for u")
+MainTab:AddLabel("Nvm it didn't work for moveset")
+MainTab:AddLabel("Still Work for Melee And Sword Tho")
+
 
 local SelectedTool = nil
 local AutoEquip = false
