@@ -358,18 +358,18 @@ TeleportTab:AddButton({
 })
 
 local teleportLocations = {
-    ["Shibuya Island"] = Vector3.new(449, 0, 585),
-    ["Starter Island"] = Vector3.new(-361, 3, -273),
-    ["Village Island"] = Vector3.new(730, 52, -205),
-    ["Sakura Island"] = Vector3.new(958, -1, -1402)
+    ["Cinderfall"] = Vector3.new(449, 0, 585),
+    ["The Academy"] = Vector3.new(-361, 3, -273),
+    ["The Windmill"] = Vector3.new(730, 52, -205),
+    ["Shenzai"] = Vector3.new(958, -1, -1402)
 }
 
 local selectedLocation = nil
 
 local TeleportDropdown = TeleportTab:AddDropdown({
     Name = "Select Location",
-    Default = "Shibuya Island",
-    Options = {"Shibuya Island", "Starter Island", "Village Island", "Sakura Island"},
+    Default = "The Academy",
+    Options = {"Cinderfall", "The Academy", "The Windmill", "Shenzai"},
     Callback = function(value)
         selectedLocation = value
     end
