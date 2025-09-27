@@ -21,16 +21,13 @@ local AboveHeight = 2
 local AutoFarmActive = false
 local PositionMode = "Above"
 
-local SelectedMob = nil
-local function getUniqueMobs()
+local function getMobs()
     local mobNames = {}
-    local added = {}
     for _, mob in pairs(workspace.Mobs:GetChildren()) do
-        if not game.Players:FindFirstChild(mob.Name) then
-            if not added[mob.Name] then
-                table.insert(mobNames, mob.Name)
-                added[mob.Name] = true
-            end
+        if not mob:IsA("Model") then continue end
+        local cleanName = mob.Name:gsub("%(.*%)","")
+        if not table.find(mobNames, cleanName) then
+            table.insert(mobNames, cleanName)
         end
     end
     return mobNames
@@ -39,7 +36,7 @@ end
 local MobDropdown = MainTab:AddDropdown({
     Name = "Select Mob",
     Default = "",
-    Options = getUniqueMobs(),
+    Options = getMobs(),
     Callback = function(value)
         SelectedMob = value
     end
@@ -48,13 +45,7 @@ local MobDropdown = MainTab:AddDropdown({
 MainTab:AddButton({
     Name = "Refresh Mobs",
     Callback = function()
-        local options = getUniqueMobs()
-        MobDropdown:Refresh(options)
-        if SelectedMob and table.find(options, SelectedMob) then
-            MobDropdown:SetSelected(SelectedMob)
-        else
-            SelectedMob = nil
-        end
+        MobDropdown:Refresh(getMobs())
     end
 })
 
@@ -80,7 +71,7 @@ MainTab:AddDropdown({
 local M1Remote = ReplicatedStorage:WaitForChild("Resource"):WaitForChild("Remotes"):WaitForChild("M1")
 
 MainTab:AddToggle({
-    Name = "Auto Farm Mob",
+    Name = "Auto Farm",
     Default = false,
     Callback = function(state)
         AutoFarmActive = state
@@ -89,33 +80,37 @@ MainTab:AddToggle({
                 while AutoFarmActive do
                     if SelectedMob then
                         local mob = workspace.Mobs:FindFirstChild(SelectedMob)
-                        if mob and mob:FindFirstChild("HumanoidRootPart") and mob:FindFirstChildOfClass("Humanoid") and mob:FindFirstChildOfClass("Humanoid").Health > 0 then
-                            local hrp = LocalPlayer.Character.HumanoidRootPart
-                            local mobHRP = mob.HumanoidRootPart
+                        local char = LocalPlayer.Character
+                        if mob and mob:FindFirstChild("HumanoidRootPart") 
+                           and mob:FindFirstChildOfClass("Humanoid") 
+                           and mob.Humanoid.Health > 0
+                           and char and char:FindFirstChild("HumanoidRootPart") then
+                            
+                            local hrp = char.HumanoidRootPart
+                            local targetHRP = mob.HumanoidRootPart
+                            local targetPos = targetHRP.Position
 
-                            local offset
                             if PositionMode == "Above" then
-                                offset = Vector3.new(0, OffsetValue, 0)
+                                targetPos = targetPos + Vector3.new(0, AboveHeight, 0)
                             elseif PositionMode == "Below" then
-                                offset = Vector3.new(0, -OffsetValue, 0)
+                                targetPos = targetPos - Vector3.new(0, AboveHeight, 0)
                             elseif PositionMode == "Behind" then
-                                local dir = (hrp.Position - mobHRP.Position).Unit
-                                offset = dir * 2
-                            else
-                                offset = Vector3.new(0, OffsetValue, 0)
+                                targetPos = targetPos - targetHRP.CFrame.LookVector * AboveHeight
                             end
 
-                            hrp.CFrame = CFrame.lookAt(mobHRP.Position + offset, mobHRP.Position)
+                            hrp.CFrame = CFrame.lookAt(targetPos, targetHRP.Position)
 
                             local args = {{
                                 type = "M1",
                                 InAir = false,
                                 UpTilt = false
                             }}
-                            M1Remote:FireServer(unpack(args))
+                            pcall(function()
+                                M1Remote:FireServer(unpack(args))
+                            end)
                         end
                     end
-                    game:GetService("RunService").Heartbeat:Wait()
+                    RunService.Heartbeat:Wait()
                 end
             end)
         end
