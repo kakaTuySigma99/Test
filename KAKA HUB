@@ -181,6 +181,8 @@ MainTab:AddToggle({
     end
 })
 
+MainTab:AddLabel("Fix soon")
+
 local InstantKillActive = false
 
 MainTab:AddToggle({
@@ -204,7 +206,8 @@ task.spawn(function()
     end
 end)
 
-MainTab:AddLabel("So how it work basically good for moveset if you use you move at mob it will auto kill for u")
+MainTab:AddLabel("So how it work basically good for moveset")
+MainTab:AddLabel("if you use you move at mob it will auto kill for u")
 
 local SelectedTool = nil
 local AutoEquip = false
