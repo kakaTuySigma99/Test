@@ -181,6 +181,31 @@ MainTab:AddToggle({
     end
 })
 
+local InstantKillActive = false
+
+MainTab:AddToggle({
+    Name = "Auto Kill Nearest Mob",
+    Default = false,
+    Callback = function(state)
+        InstantKillActive = state
+    end
+})
+
+task.spawn(function()
+    while true do
+        if AutoFarmActive and InstantKillActive then
+            for _, mob in pairs(workspace.Mobs:GetChildren()) do
+                if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob.Humanoid.Health < mob.Humanoid.MaxHealth then
+                    mob.Humanoid.Health = 0
+                end
+            end
+        end
+        game:GetService("RunService").Heartbeat:Wait()
+    end
+end)
+
+MainTab:AddLabel("So how it work basically good for moveset if you use you move at mob it will auto kill for u")
+
 local SelectedTool = nil
 local AutoEquip = false
 
