@@ -118,6 +118,34 @@ MainTab:AddToggle({
     end
 })
 
+local InstantKillActive = false
+
+MainTab:AddToggle({
+    Name = "Instant Kill (Beta)",
+    Default = false,
+    Callback = function(state)
+        InstantKillActive = state
+    end
+})
+
+task.spawn(function()
+    while true do
+        if AutoFarmActive and SelectedMob then
+            local mob = nil
+            for _, m in pairs(workspace.Mobs:GetChildren()) do
+                if m.Name == SelectedMob and m:FindFirstChild("Humanoid") and m.Humanoid.Health > 0 then
+                    mob = m
+                    break
+                end
+            end
+            if mob and InstantKillActive and mob.Humanoid.Health < mob.Humanoid.MaxHealth then
+                mob.Humanoid.Health = 0
+            end
+        end
+        game:GetService("RunService").Heartbeat:Wait()
+    end
+end)
+
 local AutoQuestRemote = ReplicatedStorage:WaitForChild("Resource"):WaitForChild("Remotes"):WaitForChild("Bindable"):WaitForChild("Compliments")
 
 local QuestDropdown = MainTab:AddDropdown({
