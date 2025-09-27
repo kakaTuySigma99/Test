@@ -17,7 +17,7 @@ local MainTab = Window:MakeTab({
 })
 
 local SelectedMob = nil
-local AboveHeight = 2
+local AboveHeight = 6
 local AutoFarmActive = false
 local PositionMode = "Above"
 
@@ -52,7 +52,7 @@ MainTab:AddButton({
 
 MainTab:AddTextbox({
     Name = "Distance Between Mob",
-    Default = "2",
+    Default = "6",
     TextDisappear = false,
     Callback = function(value)
         local num = tonumber(value)
@@ -353,6 +353,32 @@ TeleportTab:AddButton({
                     end
                 end
             end
+        end
+    end
+})
+
+local teleportLocations = {
+    ["Shibuya Island"] = Vector3.new(449, 0, 585),
+    ["Starter Island"] = Vector3.new(-361, 3, -273),
+    ["Village Island"] = Vector3.new(730, 52, -205)
+}
+
+local selectedLocation = nil
+
+local TeleportDropdown = TeleportTab:AddDropdown({
+    Name = "Select Location",
+    Default = "Shibuya Island",
+    Options = {"Shibuya Island", "Starter Island", "Village Island"},
+    Callback = function(value)
+        selectedLocation = value
+    end
+})
+
+TeleportTab:AddButton({
+    Name = "Teleport",
+    Callback = function()
+        if selectedLocation and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(teleportLocations[selectedLocation])
         end
     end
 })
