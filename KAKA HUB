@@ -572,6 +572,31 @@ ShopTab:AddButton({
     end
 })
 
+ShopTab:AddLabel("Roll")
+
+local AutoRollActive = false
+
+ShopTab:AddToggle({
+    Name = "Auto Roll Moveset",
+    Default = false,
+    Callback = function(state)
+        AutoRollActive = state
+        if state then
+            task.spawn(function()
+                while AutoRollActive do
+                    local args = {{
+                        Arg = "MovesetSpin"
+                    }}
+                    game:GetService("ReplicatedStorage"):WaitForChild("Resource")
+                        :WaitForChild("Remotes"):WaitForChild("Bindable")
+                        :WaitForChild("Server"):InvokeServer(unpack(args))
+                    task.wait(1)
+                end
+            end)
+        end
+    end
+})
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
