@@ -195,21 +195,24 @@ MainTab:AddToggle({
     end
 })
 
-local AutoKillNearestActive = false
+local AutoKillNearActive = false
 
 MainTab:AddToggle({
-    Name = "Auto Kill Nearest Mob",
+    Name = "Auto Kill Near Mob",
     Default = false,
     Callback = function(state)
-        AutoKillNearestActive = state
+        AutoKillNearActive = state
     end
 })
 
 task.spawn(function()
     while true do
-        if AutoKillNearestActive then
+        if AutoKillNearActive then
             for _, mob in pairs(workspace.Mobs:GetChildren()) do
-                if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                if mob:FindFirstChild("Humanoid") 
+                and mob.Humanoid.Health < mob.Humanoid.MaxHealth 
+                and mob.Humanoid.Health > 0 
+                and mob.Name ~= LocalPlayer.Name then
                     mob.Humanoid.Health = 0
                 end
             end
