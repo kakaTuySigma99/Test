@@ -181,9 +181,7 @@ MainTab:AddToggle({
     end
 })
 
-MainTab:AddLabel("Fix soon")
-
-local InstantKillActive = false
+local InsantKillActive = false
 
 MainTab:AddToggle({
     Name = "Auto Kill Nearest Mob",
@@ -195,10 +193,12 @@ MainTab:AddToggle({
 
 task.spawn(function()
     while true do
-        if AutoFarmActive and InstantKillActive then
+        if InsantKillActive then
             for _, mob in pairs(workspace.Mobs:GetChildren()) do
-                if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 and mob.Humanoid.Health < mob.Humanoid.MaxHealth then
-                    mob.Humanoid.Health = 0
+                if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                    if mob.Humanoid.Health < mob.Humanoid.MaxHealth then
+                        mob.Humanoid.Health = 0
+                    end
                 end
             end
         end
