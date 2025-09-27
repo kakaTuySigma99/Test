@@ -501,6 +501,77 @@ MiscTab:AddButton({
     end
 })
 
+local ShopTab = Window:MakeTab({
+    Name = "Shop",
+    PremiumOnly = false
+})
+
+local items = {
+    "Explosive Bomb",
+    "Construction",
+    "Rubber",
+    "Vital Arts",
+    "Turbo Soul",
+    "Light",
+    "Star Guardian",
+    "Ice",
+    "Infinity",
+    "Monarch",
+    "Vessel"
+}
+
+local selectedItem = items[1]
+local AutoBuyActive = false
+
+local ShopDropdown = ShopTab:AddDropdown({
+    Name = "Select Item",
+    Default = selectedItem,
+    Options = items,
+    Callback = function(value)
+        selectedItem = value
+    end
+})
+
+ShopTab:AddToggle({
+    Name = "Auto Buy",
+    Default = false,
+    Callback = function(state)
+        AutoBuyActive = state
+        if state then
+            task.spawn(function()
+                while AutoBuyActive do
+                    local index = table.find(items, selectedItem)
+                    if index then
+                        local args = {{
+                            Item = "MV"..index,
+                            Type = "StockBuy"
+                        }}
+                        game:GetService("ReplicatedStorage"):WaitForChild("Resource"):WaitForChild("Remotes")
+                            :WaitForChild("Bindable"):WaitForChild("Compliments"):FireServer(unpack(args))
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end
+})
+
+ShopTab:AddButton({
+    Name = "Buy Once",
+    Callback = function()
+        local index = table.find(items, selectedItem)
+        if index then
+            local args = {{
+                Item = "MV"..index,
+                Type = "StockBuy"
+            }}
+            game:GetService("ReplicatedStorage"):WaitForChild("Resource")
+                :WaitForChild("Remotes"):WaitForChild("Bindable"):WaitForChild("Compliments")
+                :FireServer(unpack(args))
+        end
+    end
+})
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
