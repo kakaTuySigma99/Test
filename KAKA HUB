@@ -24,10 +24,16 @@ local PositionMode = "Above"
 local function getMobs()
     local mobNames = {}
     for _, mob in pairs(workspace.Mobs:GetChildren()) do
-        if mob:IsA("Model") then
-            local cleanName = mob.Name:gsub("%(.*%)", ""):gsub("^%s*(.-)%s*$", "%1") -- Trim whitespace
-            if not table.find(mobNames, cleanName) then
-                table.insert(mobNames, cleanName)
+        if mob:IsA("Model") and not game.Players:GetPlayerFromCharacter(mob) then
+            -- Additional check to ensure it's not a player character
+            if mob:FindFirstChild("Humanoid") and not mob:FindFirstChild("HumanoidRootPart") == nil then
+                local cleanName = mob.Name:gsub("%(.*%)", ""):gsub("^%s*(.-)%s*$", "%1")
+                if not table.find(mobNames, cleanName) then
+                    table.insert(mobNames, cleanName)
+                    print("Added mob:", cleanName)
+                end
+            else
+                print("Skipped:", mob.Name, "
             end
         end
     end
@@ -46,6 +52,7 @@ local MobDropdown = MainTab:AddDropdown({
 MainTab:AddButton({
     Name = "Refresh Mobs",
     Callback = function()
+        print("Refreshing mob list...") -- Debug output
         MobDropdown:Refresh(getMobs(), true) -- Clear existing options before refreshing
     end
 })
