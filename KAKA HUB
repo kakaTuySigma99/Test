@@ -23,17 +23,21 @@ local PositionMode = "Above"
 
 local function getMobs()
     local mobNames = {}
+    local playerNames = {} -- Store player names for explicit exclusion
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player.Character and player.Character.Name then
+            table.insert(playerNames, player.Character.Name)
+        end
+    end
+    
     for _, mob in pairs(workspace.Mobs:GetChildren()) do
         if mob:IsA("Model") and not game.Players:GetPlayerFromCharacter(mob) then
-            -- Additional check to ensure it's not a player character
-            if mob:FindFirstChild("Humanoid") and not mob:FindFirstChild("HumanoidRootPart") == nil then
-                local cleanName = mob.Name:gsub("%(.*%)", ""):gsub("^%s*(.-)%s*$", "%1")
-                if not table.find(mobNames, cleanName) then
-                    table.insert(mobNames, cleanName)
-                    print("Added mob:", cleanName)
-                end
+            local cleanName = mob.Name:gsub("%(.*%)", ""):gsub("^%s*(.-)%s*$", "%1") -- Remove parentheses and trim whitespace
+            if not table.find(mobNames, cleanName) and not table.find(playerNames, cleanName) then
+                table.insert(mobNames, cleanName)
+                print("Added mob:", cleanName) -- Debug output
             else
-                print("Skipped:", mob.Name, "
+                print("Skipped:", mob.Name, " - Likely a player or duplicate") -- Debug output
             end
         end
     end
