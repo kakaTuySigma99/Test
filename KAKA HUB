@@ -384,6 +384,25 @@ TeleportTab:AddButton({
     end
 })
 
+local CodeTab = Window:MakeTab({
+    Name = "Codes",
+    PremiumOnly = false
+})
+
+CodeTab:AddLabel("90KLIKESWOAH: 5 Clan Spins (NEW)")
+CodeTab:AddLabel("60KThumbsUp: 5 Clan Spins (NEW)")
+CodeTab:AddLabel("80KLIKESNICE: 15 min EXP (NEW)")
+CodeTab:AddLabel("70KLIKESWOW: 15 min EXP (NEW)")
+CodeTab:AddLabel("1MVisits: 5 Clan Spins (NEW)")
+CodeTab:AddLabel("100KMemberswow: 5 Clan Spins (NEW)")
+CodeTab:AddLabel("2KActivesNicceee: 5 Race Spins (NEW)")
+CodeTab:AddLabel("SORRYFORSOULREAPERDELAY: 15 min EXP (NEW)")
+CodeTab:AddLabel("75KPEAKMEMBERS: 15 min EXP (NEW)")
+CodeTab:AddLabel("25KLLIKESSTHUMB: 5 Clan Spins (NEW)")
+CodeTab:AddLabel("50KTHUMBUP: 5 Clan Spins")
+CodeTab:AddLabel("500KVISITSS: 5 Race Spins")
+CodeTab:AddLabel("750KVISITSS: 5 Race Spins")
+
 local MiscTab = Window:MakeTab({
     Name = "Misc",
     PremiumOnly = false
