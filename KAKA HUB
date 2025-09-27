@@ -21,12 +21,15 @@ local AboveHeight = 2
 local AutoFarmActive = false
 local PositionMode = "Above"
 
-local function getMobs()
+local function getUniqueMobs()
     local mobNames = {}
+    local seen = {}
     for _, mob in pairs(workspace.Mobs:GetChildren()) do
         if not mob:IsA("Model") then continue end
-        local cleanName = mob.Name:gsub("%(.*%)","")
-        if not table.find(mobNames, cleanName) then
+        if Players:FindFirstChild(mob.Name) then continue end
+        local cleanName = mob.Name
+        if not seen[cleanName] then
+            seen[cleanName] = true
             table.insert(mobNames, cleanName)
         end
     end
@@ -36,7 +39,7 @@ end
 local MobDropdown = MainTab:AddDropdown({
     Name = "Select Mob",
     Default = "",
-    Options = getMobs(),
+    Options = getUniqueMobs(),
     Callback = function(value)
         SelectedMob = value
     end
@@ -45,12 +48,13 @@ local MobDropdown = MainTab:AddDropdown({
 MainTab:AddButton({
     Name = "Refresh Mobs",
     Callback = function()
-        MobDropdown:Refresh(getMobs())
+        SelectedMob = nil
+        MobDropdown:Refresh(getUniqueMobs())
     end
 })
 
 MainTab:AddTextbox({
-    Name = "Height Above Mob",
+    Name = "Distance Between Mob",
     Default = "2",
     TextDisappear = false,
     Callback = function(value)
