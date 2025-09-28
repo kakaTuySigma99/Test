@@ -574,6 +574,45 @@ ShopTab:AddButton({
     end
 })
 
+local DialogueRemote = game:GetService("ReplicatedStorage")
+    :WaitForChild("Resource")
+    :WaitForChild("Remotes")
+    :WaitForChild("Player")
+    :WaitForChild("Dialogue")
+
+local DialogueOptions = {
+    ["Dismantle"] = {NpcName = "Kisaragi", Dialogue = "Have"},
+    ["Gojo"] = {NpcName = "Daichi", Dialogue = "Have"},
+    ["Oni Shockwave"] = {NpcName = "Sad Demon", Dialogue = "Have"},
+    ["Cursed Punch"] = {NpcName = "The Puncher", Dialogue = "Have"}
+}
+
+local SelectedDialogue = nil
+
+ShopTab:AddDropdown({
+    Name = "Choose Dialogue",
+    Default = "",
+    Options = {"Dismantle", "Gojo", "Oni Shockwave", "Cursed Punch"},
+    Callback = function(v)
+        SelectedDialogue = v
+    end
+})
+
+ShopTab:AddLabel("For only if you already buy melee")
+
+ShopTab:AddButton({
+    Name = "Switch Melee",
+    Callback = function()
+        if SelectedDialogue and DialogueOptions[SelectedDialogue] then
+            local args = {
+                "Start",
+                DialogueOptions[SelectedDialogue]
+            }
+            DialogueRemote:FireServer(unpack(args))
+        end
+    end
+})
+
 ShopTab:AddLabel("Roll")
 
 local AutoRollActive = false
