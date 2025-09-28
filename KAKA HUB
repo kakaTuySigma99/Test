@@ -435,6 +435,8 @@ local CodeTab = Window:MakeTab({
     PremiumOnly = false
 })
 
+CodeTab:AddLabel("1.5MVISITSWOWWWWW x2 Exp")
+CodeTab:AddLabel("100KLIKESSLEZZGO: 10 Clan Spins (NEW)")
 CodeTab:AddLabel("90KLIKESWOAH: 5 Clan Spins (NEW)")
 CodeTab:AddLabel("60KThumbsUp: 5 Clan Spins (NEW)")
 CodeTab:AddLabel("80KLIKESNICE: 15 min EXP (NEW)")
