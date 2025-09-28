@@ -581,18 +581,18 @@ local DialogueRemote = game:GetService("ReplicatedStorage")
     :WaitForChild("Dialogue")
 
 local DialogueOptions = {
-    ["Dismantle"] = {NpcName = "Kisaragi", Dialogue = "Have"},
-    ["Gojo"] = {NpcName = "Daichi", Dialogue = "Have"},
+    ["Claws Of Dismantle"] = {NpcName = "Kisaragi", Dialogue = "Have"},
+    ["Hand Of Attraction"] = {NpcName = "Daichi", Dialogue = "Have"},
     ["Oni Shockwave"] = {NpcName = "Sad Demon", Dialogue = "Have"},
-    ["Cursed Punch"] = {NpcName = "The Puncher", Dialogue = "Have"}
+    ["Cursed Fist"] = {NpcName = "The Puncher", Dialogue = "Have"}
 }
 
 local SelectedDialogue = nil
 
 ShopTab:AddDropdown({
-    Name = "Choose Dialogue",
+    Name = "Choose Melee",
     Default = "",
-    Options = {"Dismantle", "Gojo", "Oni Shockwave", "Cursed Punch"},
+    Options = {"Claws Of Dismantle", "Hand Of Attraction", "Oni Shockwave", "Cursed Fist"},
     Callback = function(v)
         SelectedDialogue = v
     end
