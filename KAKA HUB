@@ -163,7 +163,7 @@ end)
 local AutoQuestRemote = ReplicatedStorage:WaitForChild("Resource"):WaitForChild("Remotes"):WaitForChild("Bindable"):WaitForChild("Compliments")
 
 local questOptions = {}
-for i = 1, 35 do
+for i = 1, 21 do
     table.insert(questOptions, tostring(i))
 end
 
