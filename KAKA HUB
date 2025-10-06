@@ -83,6 +83,31 @@ MainTab:AddDropdown({
     end
 })
 
+local AutoM1Active = false
+
+MainTab:AddToggle({
+    Name = "Auto M1",
+    Default = false,
+    Callback = function(state)
+        AutoM1Active = state
+        if state then
+            task.spawn(function()
+                while AutoM1Active do
+                    local args = {{
+                        type = "M1",
+                        InAir = false,
+                        UpTilt = false
+                    }}
+                    pcall(function()
+                        M1Remote:FireServer(unpack(args))
+                    end)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
 local M1Remote = ReplicatedStorage:WaitForChild("Resource"):WaitForChild("Remotes"):WaitForChild("M1")
 
 MainTab:AddToggle({
