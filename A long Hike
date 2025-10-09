@@ -1,0 +1,136 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/Seven7-lua/Roblox/refs/heads/main/Librarys/Orion/Orion.lua')))()
+local Window = OrionLib:MakeWindow({Name = "Kaka Hub | A long Hike", HidePremium = false, SaveConfig = true, ConfigFolder = "KakaHub"})
+
+local MainTab = Window:MakeTab({
+	Name = "Main Tab",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+local AutoCutEnabled = false
+local DistanceBoxValue = 25
+local DelayBoxValue = 0.2
+
+MainTab:AddTextbox({
+	Name = "Max Distance",
+	Default = tostring(DistanceBoxValue),
+	TextDisappear = false,
+	Callback = function(Value)
+		DistanceBoxValue = tonumber(Value) or 25
+	end
+})
+
+MainTab:AddTextbox({
+	Name = "Delay Between Cuts (Seconds)",
+	Default = tostring(DelayBoxValue),
+	TextDisappear = false,
+	Callback = function(Value)
+		DelayBoxValue = tonumber(Value) or 0.2
+	end
+})
+
+MainTab:AddToggle({
+	Name = "Auto Cut Tree",
+	Default = false,
+	Callback = function(Value)
+		AutoCutEnabled = Value
+		task.spawn(function()
+			while AutoCutEnabled do
+				local localPlr = game.Players.LocalPlayer
+				local char = localPlr.Character
+				local hrp = char and char:FindFirstChild("HumanoidRootPart")
+				if hrp then
+					for i = 0, 4 do
+						local treesFolder = workspace:FindFirstChild("LandGens")
+							and workspace.LandGens:FindFirstChild("Baseplate_" .. i)
+							and workspace.LandGens["Baseplate_" .. i]:FindFirstChild("Trees")
+						if treesFolder then
+							for _, tree in ipairs(treesFolder:GetChildren()) do
+								local trunk = tree:FindFirstChild("Trunk")
+								if trunk and (hrp.Position - trunk.Position).Magnitude <= DistanceBoxValue then
+									pcall(function()
+										game:GetService("ReplicatedStorage").Remotes.HitTree:FireServer(trunk)
+									end)
+									task.wait(DelayBoxValue)
+								end
+							end
+						end
+					end
+				end
+				task.wait(0.5)
+			end
+		end)
+	end
+})
+
+local SelectedItem = nil
+
+MainTab:AddDropdown({
+	Name = "Bring Item",
+	Default = "",
+	Options = (function()
+		local items = {}
+		for _, v in pairs(workspace:WaitForChild("Objects"):GetChildren()) do
+			if not table.find(items, v.Name) then
+				table.insert(items, v.Name)
+			end
+		end
+		return items
+	end)(),
+	Callback = function(value)
+		SelectedItem = value
+	end
+})
+
+MainTab:AddButton({
+	Name = "Bring",
+	Callback = function()
+		if SelectedItem then
+			local obj = workspace.Objects:FindFirstChild(SelectedItem)
+			local char = game.Players.LocalPlayer.Character
+			local hrp = char and char:FindFirstChild("HumanoidRootPart")
+			if obj and hrp then
+				if obj:IsA("Model") then
+					obj:PivotTo(hrp.CFrame)
+				elseif obj:IsA("BasePart") then
+					obj.CFrame = hrp.CFrame
+				end
+			end
+		end
+	end
+})
+
+OrionLib:Init()
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "Toggleui"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+local Toggle = Instance.new("TextButton")
+Toggle.Name = "Toggle"
+Toggle.Parent = ScreenGui
+Toggle.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Toggle.BackgroundTransparency = 0.5
+Toggle.Position = UDim2.new(0, 0, 0.454706937, 0)
+Toggle.Size = UDim2.new(0, 50, 0, 50)
+Toggle.Draggable = true
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0.2, 0)
+Corner.Parent = Toggle
+
+local Image = Instance.new("ImageLabel")
+Image.Name = "Icon"
+Image.Parent = Toggle
+Image.Size = UDim2.new(1, 0, 1, 0)
+Image.BackgroundTransparency = 1
+Image.Image = "rbxassetid://117239677500065"
+
+local Corner2 = Instance.new("UICorner")
+Corner2.CornerRadius = UDim.new(0.2, 0)
+Corner2.Parent = Image
+
+Toggle.MouseButton1Click:Connect(function()
+	OrionLib:ToggleUi()
+end)
