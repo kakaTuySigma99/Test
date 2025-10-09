@@ -136,6 +136,87 @@ MainTab:AddButton({
 	end
 })
 
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local PlayerTab = Window:MakeTab({
+	Name = "Player",
+	PremiumOnly = false
+})
+
+local function getPlayerNames()
+	local names = {}
+	for _, plr in pairs(Players:GetPlayers()) do
+		if plr ~= LocalPlayer then
+			table.insert(names, plr.Name)
+		end
+	end
+	return names
+end
+
+PlayerTab:AddSlider({
+	Name = "WalkSpeed",
+	Min = 16,
+	Max = 500,
+	Default = 16,
+	Color = Color3.fromRGB(0, 255, 0),
+	Increment = 1,
+	ValueName = "speed",
+	Callback = function(value)
+		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+			LocalPlayer.Character.Humanoid.WalkSpeed = value
+		end
+	end
+})
+
+PlayerTab:AddSlider({
+	Name = "JumpPower",
+	Min = 50,
+	Max = 500,
+	Default = 50,
+	Color = Color3.fromRGB(0, 255, 255),
+	Increment = 1,
+	ValueName = "jump",
+	Callback = function(value)
+		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+			LocalPlayer.Character.Humanoid.JumpPower = value
+		end
+	end
+})
+
+local SelectedPlayer = nil
+local PlayerDropdown = PlayerTab:AddDropdown({
+	Name = "Select Player",
+	Default = "",
+	Options = getPlayerNames(),
+	Callback = function(value)
+		SelectedPlayer = value
+	end
+})
+
+PlayerTab:AddButton({
+	Name = "Refresh Players",
+	Callback = function()
+		PlayerDropdown:Refresh(getPlayerNames())
+		SelectedPlayer = nil
+	end
+})
+
+PlayerTab:AddButton({
+	Name = "Teleport to Player",
+	Callback = function()
+		if SelectedPlayer then
+			local target = Players:FindFirstChild(SelectedPlayer)
+			if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+				local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+				if hrp then
+					hrp.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
+				end
+			end
+		end
+	end
+})
+
 OrionLib:Init()
 
 local ScreenGui = Instance.new("ScreenGui")
