@@ -35,7 +35,7 @@ MainTab:AddToggle("AutoCutToggle", {
                     local maxDist = tonumber(distanceBox.Value) or 25
                     local delayTime = tonumber(delayBox.Value) or 0.2
                     local treesList = {}
-                    for i = 0, 4 do
+                    for i = 0, 149 do
                         local treesFolder = workspace:FindFirstChild("LandGens") 
                             and workspace.LandGens:FindFirstChild("Baseplate_" .. i) 
                             and workspace.LandGens["Baseplate_" .. i]:FindFirstChild("Trees")
