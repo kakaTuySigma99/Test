@@ -309,6 +309,33 @@ DupeTab:AddButton({
 	end
 })
 
+DupeTab:AddButton({
+    Name = "Drop Everything",
+    Callback = function()
+        local player = game:GetService("Players").LocalPlayer
+        local backpack = player:WaitForChild("Backpack")
+        local char = player.Character
+
+        if char then
+            for _, tool in pairs(char:GetChildren()) do
+                if tool:IsA("Tool") then
+                    local args = {tool}
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("DropTool"):FireServer(unpack(args))
+                end
+            end
+        end
+
+        if backpack then
+            for _, tool in pairs(backpack:GetChildren()) do
+                if tool:IsA("Tool") then
+                    local args = {tool}
+                    game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("DropTool"):FireServer(unpack(args))
+                end
+            end
+        end
+    end
+})
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
