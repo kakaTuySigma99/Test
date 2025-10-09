@@ -109,12 +109,20 @@ local ItemDropdown = MainTab:AddDropdown({
 MainTab:AddButton({
 	Name = "Bring Items",
 	Callback = function()
+		local plrHRP = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if not plrHRP then return end
 		for _, itemName in pairs(SelectedItems) do
 			local obj = workspace.Objects:FindFirstChild(itemName)
-			if obj and obj:IsA("BasePart") then
-				pcall(function()
-					obj.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
-				end)
+			if obj then
+				if obj:IsA("Model") and obj.PrimaryPart then
+					pcall(function()
+						obj:SetPrimaryPartCFrame(plrHRP.CFrame)
+					end)
+				elseif obj:IsA("BasePart") then
+					pcall(function()
+						obj.CFrame = plrHRP.CFrame
+					end)
+				end
 			end
 		end
 	end
