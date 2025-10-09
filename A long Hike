@@ -35,8 +35,7 @@ MainTab:AddToggle("AutoCutToggle", {
                     local maxDist = tonumber(distanceBox.Value) or 25
                     local delayTime = tonumber(delayBox.Value) or 0.2
                     local treesList = {}
-
-                    for i = 0, 155 do
+                    for i = 0, 4 do
                         local treesFolder = workspace:FindFirstChild("LandGens") 
                             and workspace.LandGens:FindFirstChild("Baseplate_" .. i) 
                             and workspace.LandGens["Baseplate_" .. i]:FindFirstChild("Trees")
@@ -49,18 +48,16 @@ MainTab:AddToggle("AutoCutToggle", {
                             end
                         end
                     end
-
                     table.sort(treesList, function(a, b)
                         return (hrp.Position - a.Position).Magnitude < (hrp.Position - b.Position).Magnitude
                     end)
-
                     for _, trunk in ipairs(treesList) do
                         local args = {trunk}
                         pcall(function()
                             game:GetService("ReplicatedStorage").Remotes.HitTree:FireServer(unpack(args))
                         end)
+                        task.wait(delayTime)
                     end
-                    task.wait(delayTime)
                 end
                 task.wait(0.5)
             end
