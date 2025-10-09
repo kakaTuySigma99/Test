@@ -259,6 +259,49 @@ Players.PlayerRemoving:Connect(function()
     PlayerDropdown:Refresh(getPlayerNames())
 end)
 
+local DupeTab = Window:MakeTab({
+	Name = "Dupe",
+	PremiumOnly = false
+})
+
+local DupeItemName = ""
+local DupeAmount = 3
+
+DupeTab:AddTextbox({
+	Name = "Item Name",
+	Default = "",
+	TextDisappear = false,
+	Callback = function(value)
+		DupeItemName = value
+	end
+})
+
+DupeTab:AddTextbox({
+	Name = "Amount",
+	Default = "3",
+	TextDisappear = false,
+	Callback = function(value)
+		local num = tonumber(value)
+		if num then DupeAmount = num end
+	end
+})
+
+DupeTab:AddButton({
+	Name = "Dupe Item",
+	Callback = function()
+		if DupeItemName ~= "" then
+			local item = workspace:FindFirstChild("Objects") and workspace.Objects:FindFirstChild(DupeItemName)
+			if item then
+				for i = 1, DupeAmount do
+					local args = {DupeItemName, item}
+					game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("PickupItem"):FireServer(unpack(args))
+					task.wait()
+				end
+			end
+		end
+	end
+})
+
 OrionLib:Init()
 
 local ScreenGui = Instance.new("ScreenGui")
