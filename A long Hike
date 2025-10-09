@@ -63,40 +63,68 @@ MainTab:AddToggle({
 	end
 })
 
-local SelectedItem = nil
+local AutoPull = false
 
-MainTab:AddDropdown({
-	Name = "Bring Item",
-	Default = "",
-	Options = (function()
-		local items = {}
-		for _, v in pairs(workspace:WaitForChild("Objects"):GetChildren()) do
-			if not table.find(items, v.Name) then
-				table.insert(items, v.Name)
+MainTab:AddLabel("Fishing")
+
+MainTab:AddToggle({
+	Name = "Auto Pull",
+	Default = false,
+	Callback = function(state)
+		AutoPull = state
+		task.spawn(function()
+			while AutoPull do
+				pcall(function()
+					game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("RodPull"):FireServer()
+				end)
+				task.wait(0.01)
 			end
-		end
-		return items
-	end)(),
+		end)
+	end
+})
+
+MainTab:AddLabel("Bring Item")
+
+local SelectedItems = {}
+
+local function refreshItems()
+	local items = {}
+	for _, obj in pairs(workspace.Objects:GetChildren()) do
+		table.insert(items, obj.Name)
+	end
+	return items
+end
+
+local ItemDropdown = MainTab:AddDropdown({
+	Name = "Choose Items",
+	Default = "",
+	Options = refreshItems(),
 	Callback = function(value)
-		SelectedItem = value
+		if not table.find(SelectedItems, value) then
+			table.insert(SelectedItems, value)
+		end
 	end
 })
 
 MainTab:AddButton({
-	Name = "Bring",
+	Name = "Bring Items",
 	Callback = function()
-		if SelectedItem then
-			local obj = workspace.Objects:FindFirstChild(SelectedItem)
-			local char = game.Players.LocalPlayer.Character
-			local hrp = char and char:FindFirstChild("HumanoidRootPart")
-			if obj and hrp then
-				if obj:IsA("Model") then
-					obj:PivotTo(hrp.CFrame)
-				elseif obj:IsA("BasePart") then
-					obj.CFrame = hrp.CFrame
-				end
+		for _, itemName in pairs(SelectedItems) do
+			local obj = workspace.Objects:FindFirstChild(itemName)
+			if obj and obj:IsA("BasePart") then
+				pcall(function()
+					obj.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+				end)
 			end
 		end
+	end
+})
+
+MainTab:AddButton({
+	Name = "Refresh Items",
+	Callback = function()
+		ItemDropdown:Refresh(refreshItems())
+		SelectedItems = {}
 	end
 })
 
