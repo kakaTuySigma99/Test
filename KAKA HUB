@@ -185,24 +185,27 @@ task.spawn(function()
     end
 end)
 
-local AutoKillActive = false
+local LocalKills = false
 
 MainTab:AddToggle({
     Name = "Instant kill if below 90%",
     Default = false,
     Callback = function(state)
-        AutoKillActive = state
+        LocalKills = state
     end
 })
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
 task.spawn(function()
     while true do
         if AutoFarmActive then
             for _, mob in pairs(workspace.Mobs:GetChildren()) do
-                if mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
+                if mob ~= LocalPlayer.Character and mob:FindFirstChild("Humanoid") and mob.Humanoid.Health > 0 then
                     local maxHP = mob.Humanoid.MaxHealth
                     local currentHP = mob.Humanoid.Health
-                    if AutoKillActive and currentHP <= (maxHP * 0.9) then
+                    if LocalKills and currentHP <= (maxHP * 0.9) then
                         mob.Humanoid.Health = 0
                     end
                 end
