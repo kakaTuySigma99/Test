@@ -11,56 +11,63 @@ local AutoCutEnabled = false
 local DistanceBoxValue = 25
 local DelayBoxValue = 0.2
 
+local function findLandGensFolder()
+    return workspace:FindFirstChild("LandGens")
+end
+
 MainTab:AddTextbox({
-	Name = "Max Distance",
-	Default = tostring(DistanceBoxValue),
-	TextDisappear = false,
-	Callback = function(Value)
-		DistanceBoxValue = tonumber(Value) or 25
-	end
+    Name = "Max Distance",
+    Default = tostring(DistanceBoxValue),
+    TextDisappear = false,
+    Callback = function(Value)
+        DistanceBoxValue = tonumber(Value) or 25
+    end
 })
 
 MainTab:AddTextbox({
-	Name = "Delay Between Cuts (Seconds)",
-	Default = tostring(DelayBoxValue),
-	TextDisappear = false,
-	Callback = function(Value)
-		DelayBoxValue = tonumber(Value) or 0.2
-	end
+    Name = "Delay Between Cuts (Seconds)",
+    Default = tostring(DelayBoxValue),
+    TextDisappear = false,
+    Callback = function(Value)
+        DelayBoxValue = tonumber(Value) or 0.2
+    end
 })
 
 MainTab:AddToggle({
-	Name = "Auto Cut Tree",
-	Default = false,
-	Callback = function(Value)
-		AutoCutEnabled = Value
-		task.spawn(function()
-			while AutoCutEnabled do
-				local localPlr = game.Players.LocalPlayer
-				local char = localPlr.Character
-				local hrp = char and char:FindFirstChild("HumanoidRootPart")
-				if hrp then
-					for i = 0, 4 do
-						local treesFolder = workspace:FindFirstChild("LandGens")
-							and workspace.LandGens:FindFirstChild("Baseplate_" .. i)
-							and workspace.LandGens["Baseplate_" .. i]:FindFirstChild("Trees")
-						if treesFolder then
-							for _, tree in ipairs(treesFolder:GetChildren()) do
-								local trunk = tree:FindFirstChild("Trunk")
-								if trunk and (hrp.Position - trunk.Position).Magnitude <= DistanceBoxValue then
-									pcall(function()
-										game:GetService("ReplicatedStorage").Remotes.HitTree:FireServer(trunk)
-									end)
-									task.wait(DelayBoxValue)
-								end
-							end
-						end
-					end
-				end
-				task.wait(0.5)
-			end
-		end)
-	end
+    Name = "Auto Cut Tree",
+    Default = false,
+    Callback = function(Value)
+        AutoCutEnabled = Value
+        task.spawn(function()
+            while AutoCutEnabled do
+                local localPlr = game.Players.LocalPlayer
+                local char = localPlr.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local landGensFolder = findLandGensFolder()
+                    if landGensFolder then
+                        for _, baseplate in ipairs(landGensFolder:GetChildren()) do
+                            if baseplate.Name:match("^Baseplate_%d+$") then
+                                local treesFolder = baseplate:FindFirstChild("Trees")
+                                if treesFolder then
+                                    for _, tree in ipairs(treesFolder:GetChildren()) do
+                                        local trunk = tree:FindFirstChild("Trunk")
+                                        if trunk and (hrp.Position - trunk.Position).Magnitude <= DistanceBoxValue then
+                                            pcall(function()
+                                                game:GetService("ReplicatedStorage").Remotes.HitTree:FireServer(trunk)
+                                            end)
+                                            task.wait(DelayBoxValue)
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
 })
 
 local AutoPull = false
