@@ -88,134 +88,176 @@ MainTab:AddLabel("Bring Item")
 local SelectedItems = {}
 
 local function refreshItems()
-	local items = {}
-	for _, obj in pairs(workspace.Objects:GetChildren()) do
-		table.insert(items, obj.Name)
-	end
-	return items
+    local items = {}
+    local uniqueNames = {} -- Track unique names to avoid duplicates
+    for _, obj in pairs(workspace.Objects:GetChildren()) do
+        if not uniqueNames[obj.Name] then
+            table.insert(items, obj.Name)
+            uniqueNames[obj.Name] = true
+        end
+    end
+    return items
 end
 
 local ItemDropdown = MainTab:AddDropdown({
-	Name = "Choose Items",
-	Default = "",
-	Options = refreshItems(),
-	Callback = function(value)
-		if not table.find(SelectedItems, value) then
-			table.insert(SelectedItems, value)
-		end
-	end
+    Name = "Choose Items",
+    Default = "",
+    Options = refreshItems(),
+    Callback = function(value)
+        if not table.find(SelectedItems, value) then
+            table.insert(SelectedItems, value)
+        end
+    end
 })
 
 MainTab:AddButton({
-	Name = "Bring Items",
-	Callback = function()
-		local plrHRP = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-		if not plrHRP then return end
-		for _, itemName in pairs(SelectedItems) do
-			local obj = workspace.Objects:FindFirstChild(itemName)
-			if obj then
-				if obj:IsA("Model") and obj.PrimaryPart then
-					pcall(function()
-						obj:SetPrimaryPartCFrame(plrHRP.CFrame)
-					end)
-				elseif obj:IsA("BasePart") then
-					pcall(function()
-						obj.CFrame = plrHRP.CFrame
-					end)
-				end
-			end
-		end
-	end
+    Name = "Bring Items",
+    Callback = function()
+        local plrHRP = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if not plrHRP then return end
+        for _, itemName in pairs(SelectedItems) do
+            local obj = workspace.Objects:FindFirstChild(itemName)
+            if obj then
+                if obj:IsA("Model") and obj.PrimaryPart then
+                    pcall(function()
+                        obj:SetPrimaryPartCFrame(plrHRP.CFrame)
+                    end)
+                elseif obj:IsA("BasePart") then
+                    pcall(function()
+                        obj.CFrame = plrHRP.CFrame
+                    end)
+                end
+            end
+        end
+    end
 })
 
 MainTab:AddButton({
-	Name = "Refresh Items",
-	Callback = function()
-		ItemDropdown:Refresh(refreshItems())
-		SelectedItems = {}
-	end
+    Name = "Refresh Items",
+    Callback = function()
+        ItemDropdown:Refresh(refreshItems())
+        SelectedItems = {}
+    end
 })
+
+workspace.Objects.ChildAdded:Connect(function()
+    ItemDropdown:Refresh(refreshItems())
+end)
+
+workspace.Objects.ChildRemoved:Connect(function()
+    ItemDropdown:Refresh(refreshItems())
+end)
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 local PlayerTab = Window:MakeTab({
-	Name = "Player",
-	PremiumOnly = false
+    Name = "Player",
+    PremiumOnly = false
 })
 
 local function getPlayerNames()
-	local names = {}
-	for _, plr in pairs(Players:GetPlayers()) do
-		if plr ~= LocalPlayer then
-			table.insert(names, plr.Name)
-		end
-	end
-	return names
+    local names = {}
+    local uniqueNames = {}
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= LocalPlayer and not uniqueNames[plr.Name] then
+            table.insert(names, plr.Name)
+            uniqueNames[plr.Name] = true
+        end
+    end
+    return names
 end
 
+local function getHumanoid()
+    return LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+end
+
+LocalPlayer.CharacterAdded:Connect(function(character)
+    wait(0.1)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.WalkSpeed = PlayerTab:GetSliderValue("WalkSpeed") or 16
+    humanoid.JumpPower = PlayerTab:GetSliderValue("JumpPower") or 50
+end)
+
 PlayerTab:AddSlider({
-	Name = "WalkSpeed",
-	Min = 16,
-	Max = 500,
-	Default = 16,
-	Color = Color3.fromRGB(0, 255, 0),
-	Increment = 1,
-	ValueName = "speed",
-	Callback = function(value)
-		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-			LocalPlayer.Character.Humanoid.WalkSpeed = value
-		end
-	end
+    Name = "WalkSpeed",
+    Min = 16,
+    Max = 500,
+    Default = 16,
+    Color = Color3.fromRGB(0, 255, 0),
+    Increment = 1,
+    ValueName = "speed",
+    Callback = function(value)
+        local humanoid = getHumanoid()
+        if humanoid then
+            humanoid.WalkSpeed = value
+        end
+    end
 })
 
 PlayerTab:AddSlider({
-	Name = "JumpPower",
-	Min = 50,
-	Max = 500,
-	Default = 50,
-	Color = Color3.fromRGB(0, 255, 255),
-	Increment = 1,
-	ValueName = "jump",
-	Callback = function(value)
-		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-			LocalPlayer.Character.Humanoid.JumpPower = value
-		end
-	end
+    Name = "JumpPower",
+    Min = 50,
+    Max = 500,
+    Default = 50,
+    Color = Color3.fromRGB(0, 255, 255),
+    Increment = 1,
+    ValueName = "jump",
+    Callback = function(value)
+        local humanoid = getHumanoid()
+        if humanoid then
+            humanoid.JumpPower = value
+            humanoid.UseJumpPower = true
+        end
+    end
 })
 
 local SelectedPlayer = nil
 local PlayerDropdown = PlayerTab:AddDropdown({
-	Name = "Select Player",
-	Default = "",
-	Options = getPlayerNames(),
-	Callback = function(value)
-		SelectedPlayer = value
-	end
+    Name = "Select Player",
+    Default = "",
+    Options = getPlayerNames(),
+    Callback = function(value)
+        SelectedPlayer = value
+    end
 })
 
 PlayerTab:AddButton({
-	Name = "Refresh Players",
-	Callback = function()
-		PlayerDropdown:Refresh(getPlayerNames())
-		SelectedPlayer = nil
-	end
+    Name = "Refresh Players",
+    Callback = function()
+        PlayerDropdown:Refresh(getPlayerNames())
+        SelectedPlayer = nil
+    end
 })
 
 PlayerTab:AddButton({
-	Name = "Teleport to Player",
-	Callback = function()
-		if SelectedPlayer then
-			local target = Players:FindFirstChild(SelectedPlayer)
-			if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-				local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-				if hrp then
-					hrp.CFrame = target.Character.HumanoidRootPart.CFrame + Vector3.new(0, 3, 0)
-				end
-			end
-		end
-	end
+    Name = "Teleport to Player",
+    Callback = function()
+        if SelectedPlayer then
+            local target = Players:FindFirstChild(SelectedPlayer)
+            if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    hrp.CFrame = CFrame.new(target.Character.HumanoidRootPart.Position + Vector3.new(0, 3, 0))
+                else
+                    warn("Local player's HumanoidRootPart not found")
+                end
+            else
+                warn("Target player or their HumanoidRootPart not found")
+            end
+        else
+            warn("No player selected")
+        end
+    end
 })
+
+Players.PlayerAdded:Connect(function()
+    PlayerDropdown:Refresh(getPlayerNames())
+end)
+
+Players.PlayerRemoving:Connect(function()
+    PlayerDropdown:Refresh(getPlayerNames())
+end)
 
 OrionLib:Init()
 
