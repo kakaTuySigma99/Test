@@ -40,7 +40,7 @@ MainTab:AddToggle({
 				local char = localPlr.Character
 				local hrp = char and char:FindFirstChild("HumanoidRootPart")
 				if hrp then
-					for i = 0, 4 do
+					for i = 0,99 do
 						local treesFolder = workspace:FindFirstChild("LandGens")
 							and workspace.LandGens:FindFirstChild("Baseplate_" .. i)
 							and workspace.LandGens["Baseplate_" .. i]:FindFirstChild("Trees")
