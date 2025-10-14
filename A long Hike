@@ -458,6 +458,50 @@ DupeTab:AddButton({
 	end
 })
 
+local AutoFarmTab = Window:MakeTab({
+    Name = "Auto Farm",
+    PremiumOnly = false
+})
+
+local autoFarmBone = false
+local boneTpDelay = 5
+
+AutoFarmTab:AddTextbox({
+    Name = "TP Delay (sec)",
+    Default = tostring(boneTpDelay),
+    TextDisappear = false,
+    Callback = function(value)
+        boneTpDelay = tonumber(value) or 5
+    end
+})
+
+AutoFarmTab:AddToggle({
+    Name = "Auto Farm Bone (Beta)",
+    Default = false,
+    Callback = function(state)
+        autoFarmBone = state
+        task.spawn(function()
+            while autoFarmBone do
+                for i = 0, 85 do
+                    local base = workspace:FindFirstChild("LandGens") and workspace.LandGens:FindFirstChild("Baseplate_" .. i)
+                    if base then
+                        local bone = workspace:FindFirstChild("Objects") and workspace.Objects:FindFirstChild("Bone")
+                        if bone and bone:FindFirstChild("PrimaryPart") then
+                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = bone.PrimaryPart.CFrame + Vector3.new(0, 3, 0)
+                            local args = { bone }
+                            game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CollectBone"):FireServer(unpack(args))
+                        else
+                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = base.CFrame + Vector3.new(0, 10, 0)
+                        end
+                    end
+                    task.wait(boneTpDelay)
+                    if not autoFarmBone then break end
+                end
+            end
+        end)
+    end
+})
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
