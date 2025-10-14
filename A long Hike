@@ -337,6 +337,7 @@ DupeTab:AddButton({
 })
 
 DupeTab:AddLabel("Money")
+DupeTab:AddLabel("Didn't work")
 
 local dupeAmount = 4
 
