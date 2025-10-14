@@ -464,14 +464,14 @@ local AutoFarmTab = Window:MakeTab({
 })
 
 local autoFarmBone = false
-local boneTpDelay = 5
+local boneTpDelay = 3
 
 AutoFarmTab:AddTextbox({
     Name = "TP Delay (sec)",
     Default = tostring(boneTpDelay),
     TextDisappear = false,
     Callback = function(value)
-        boneTpDelay = tonumber(value) or 5
+        boneTpDelay = tonumber(value) or 3
     end
 })
 
@@ -481,21 +481,22 @@ AutoFarmTab:AddToggle({
     Callback = function(state)
         autoFarmBone = state
         task.spawn(function()
+            local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
             while autoFarmBone do
-                for i = 0, 85 do
-                    local base = workspace:FindFirstChild("LandGens") and workspace.LandGens:FindFirstChild("Baseplate_" .. i)
-                    if base then
+                local baseplates = workspace:FindFirstChild("LandGens") and workspace.LandGens:GetChildren() or {}
+                for _, base in ipairs(baseplates) do
+                    if not autoFarmBone then break end
+                    if base:IsA("BasePart") then
+                        hrp.CFrame = base.CFrame + Vector3.new(0, 10, 0)
+                        task.wait(boneTpDelay)
+
                         local bone = workspace:FindFirstChild("Objects") and workspace.Objects:FindFirstChild("Bone")
-                        if bone and bone:FindFirstChild("PrimaryPart") then
-                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = bone.PrimaryPart.CFrame + Vector3.new(0, 3, 0)
+                        if bone and bone:IsA("MeshPart") then
+                            hrp.CFrame = CFrame.new(bone.Position + Vector3.new(0, 3, 0))
                             local args = { bone }
                             game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CollectBone"):FireServer(unpack(args))
-                        else
-                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = base.CFrame + Vector3.new(0, 10, 0)
                         end
                     end
-                    task.wait(boneTpDelay)
-                    if not autoFarmBone then break end
                 end
             end
         end)
