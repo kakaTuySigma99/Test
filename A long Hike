@@ -547,6 +547,38 @@ FarmTab:AddToggle({
 
 FarmTab:AddLabel("Use Auto Collect Bone in Main Tab")
 
+local StructureBoneFarm = false
+local Player = game.Players.LocalPlayer
+local hrp = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+
+local points = {
+    Vector3.new(38, -65, -8221),
+    Vector3.new(38, -65, -10424),
+    Vector3.new(38, -65, -15747),
+    Vector3.new(38, -65, -12860),
+    Vector3.new(38, -65, -18997),
+    Vector3.new(38, -65, -5908)
+}
+
+FarmTab:AddToggle({
+    Name = "Structure Bone Farm",
+    Default = false,
+    Callback = function(state)
+        StructureBoneFarm = state
+        task.spawn(function()
+            while StructureBoneFarm do
+                for i, point in ipairs(points) do
+                    if not StructureBoneFarm then break end
+                    if Player.Character and hrp then
+                        hrp.CFrame = CFrame.new(point)
+                        task.wait(5)
+                    end
+                end
+            end
+        end)
+    end
+})
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
