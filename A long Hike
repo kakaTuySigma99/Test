@@ -525,6 +525,26 @@ FarmTab:AddToggle({
     end
 })
 
+FarmTab:AddToggle({
+	Name = "Auto Collect Bone",
+	Default = false,
+	Callback = function(state)
+		autoBone = state
+		task.spawn(function()
+			while autoBone do
+				local bone = workspace:FindFirstChild("Objects") and workspace.Objects:FindFirstChild("Bone")
+				if bone then
+					pcall(function()
+						local args = { bone }
+						game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CollectBone"):FireServer(unpack(args))
+					end)
+				end
+				task.wait(0.5)
+			end
+		end)
+	end
+})
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
