@@ -545,6 +545,8 @@ FarmTab:AddToggle({
 	end
 })
 
+FarmTab:AddLabel("Use Auto Collect Bone in Main Tab")
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
