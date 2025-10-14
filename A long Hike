@@ -397,7 +397,7 @@ DupeTab:AddButton({
 DupeTab:AddLabel("Money")
 DupeTab:AddLabel("Read How it work on dc update log")
 
-local dupeAmount = 4
+local dupAmount = 4
 
 DupeTab:AddButton({
 	Name = "Dupe",
@@ -430,7 +430,33 @@ DupeTab:AddTextbox({
 	Default = "4",
 	TextDisappear = false,
 	Callback = function(Value)
-		dupeAmount = tonumber(Value) or 4
+		dupAmount = tonumber(Value) or 4
+	end
+})
+
+local dueAmount = 5
+
+DupeTab:AddTextbox({
+	Name = "Amount",
+	Default = "5",
+	TextDisappear = false,
+	Callback = function(value)
+		dueAmount = tonumber(value) or 5
+	end
+})
+
+DupeTab:AddButton({
+	Name = "Dupe Bone",
+	Callback = function()
+		for i = 1, dupeAmount do
+			local bone = workspace:FindFirstChild("Objects") and workspace.Objects:FindFirstChild("Bone")
+			if bone then
+				local args = { bone }
+				pcall(function()
+					game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CollectBone"):FireServer(unpack(args))
+				end)
+			end
+		end
 	end
 })
 
