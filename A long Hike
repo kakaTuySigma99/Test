@@ -90,6 +90,35 @@ MainTab:AddToggle({
 	end
 })
 
+MainTab:AddLabel("Melee")
+
+
+local autoMelee = false
+
+MainTab:AddToggle({
+	Name = "Auto Melee Hit",
+	Default = false,
+	Callback = function(state)
+		autoMelee = state
+		task.spawn(function()
+			while autoMelee do
+				local plr = game.Players.LocalPlayer
+				local char = plr.Character
+				if char then
+					local tool = char:FindFirstChildOfClass("Tool")
+					if tool then
+						local args = { tool }
+						pcall(function()
+							game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("MeleeSwing"):FireServer(unpack(args))
+						end)
+					end
+				end
+				task.wait(0.001)
+			end
+		end)
+	end
+})
+
 MainTab:AddLabel("Bring Item")
 
 local SelectedItems = {}
