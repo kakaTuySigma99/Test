@@ -463,43 +463,67 @@ local AutoFarmTab = Window:MakeTab({
     PremiumOnly = false
 })
 
-local autoFarmBone = false
-local boneTpDelay = 3
+local AutoFarmBoneActive = false
+local TweenService = game:GetService("TweenService")
+local LocalPlayer = game.Players.LocalPlayer
+local HRP = LocalPlayer.Character and LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+local Remotes = game:GetService("ReplicatedStorage"):WaitForChild("Remotes")
+local CollectBoneRemote = Remotes:WaitForChild("CollectBone")
+
+local pathPoints = {
+    Vector3.new(38, -65, -288),
+    Vector3.new(38, -65, -111309)
+}
+
+local AutoFarmTab = MainTab
+
+local tweenSpeed = 5
 
 AutoFarmTab:AddTextbox({
-    Name = "TP Delay (sec)",
-    Default = tostring(boneTpDelay),
+    Name = "Tween Speed",
+    Default = "5",
     TextDisappear = false,
     Callback = function(value)
-        boneTpDelay = tonumber(value) or 3
+        local num = tonumber(value)
+        if num then
+            tweenSpeed = num
+        end
     end
 })
 
 AutoFarmTab:AddToggle({
-    Name = "Auto Farm Bone (Beta)",
+    Name = "Auto Farm Bone (beta)",
     Default = false,
     Callback = function(state)
-        autoFarmBone = state
-        task.spawn(function()
-            local hrp = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
-            while autoFarmBone do
-                local baseplates = workspace:FindFirstChild("LandGens") and workspace.LandGens:GetChildren() or {}
-                for _, base in ipairs(baseplates) do
-                    if not autoFarmBone then break end
-                    if base:IsA("BasePart") then
-                        hrp.CFrame = base.CFrame + Vector3.new(0, 10, 0)
-                        task.wait(boneTpDelay)
-
-                        local bone = workspace:FindFirstChild("Objects") and workspace.Objects:FindFirstChild("Bone")
-                        if bone and bone:IsA("MeshPart") then
-                            hrp.CFrame = CFrame.new(bone.Position + Vector3.new(0, 3, 0))
-                            local args = { bone }
-                            game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CollectBone"):FireServer(unpack(args))
+        AutoFarmBoneActive = state
+        if state then
+            task.spawn(function()
+                local index = 1
+                while AutoFarmBoneActive do
+                    local bone = workspace:FindFirstChild("Objects") and workspace.Objects:FindFirstChild("Bone")
+                    if bone then
+                        HRP.CFrame = CFrame.new(bone.Position)
+                        pcall(function()
+                            CollectBoneRemote:FireServer(bone)
+                        end)
+                        task.wait(0.1)
+                    else
+                        local targetPos = pathPoints[index]
+                        local distance = (HRP.Position - targetPos).Magnitude
+                        local tweenInfo = TweenInfo.new(distance / tweenSpeed, Enum.EasingStyle.Linear)
+                        local tweenGoal = {CFrame = CFrame.new(targetPos)}
+                        local tween = TweenService:Create(HRP, tweenInfo, tweenGoal)
+                        tween:Play()
+                        tween.Completed:Wait()
+                        index = index + 1
+                        if index > #pathPoints then
+                            index = 1
                         end
                     end
+                    task.wait(0.1)
                 end
-            end
-        end)
+            end)
+        end
     end
 })
 
