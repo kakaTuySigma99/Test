@@ -336,6 +336,45 @@ DupeTab:AddButton({
     end
 })
 
+DupeTab:AddLabel("Money")
+
+local dupeAmount = 4
+
+DupeTab:AddButton({
+	Name = "Dupe",
+	Callback = function()
+		local nearestPrompt, shortestDist = nil, math.huge
+		local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if not hrp then return end
+
+		for _, v in pairs(workspace:GetDescendants()) do
+			if v:IsA("ProximityPrompt") then
+				local dist = (v.Parent.Position - hrp.Position).Magnitude
+				if dist < shortestDist then
+					shortestDist = dist
+					nearestPrompt = v
+				end
+			end
+		end
+
+		if nearestPrompt then
+			for i = 1, dupeAmount do
+				fireproximityprompt(nearestPrompt)
+				task.wait(0.1)
+			end
+		end
+	end
+})
+
+DupeTab:AddTextbox({
+	Name = "Amount",
+	Default = "4",
+	TextDisappear = false,
+	Callback = function(Value)
+		dupeAmount = tonumber(Value) or 4
+	end
+})
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
