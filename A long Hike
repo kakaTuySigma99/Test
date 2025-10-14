@@ -458,8 +458,8 @@ DupeTab:AddButton({
 	end
 })
 
-local AutoFarmTab = Window:MakeTab({
-    Name = "Auto Farm",
+local FarmTab = Window:MakeTab({
+    Name = "Farm Tab",
     PremiumOnly = false
 })
 
@@ -472,14 +472,12 @@ local CollectBoneRemote = Remotes:WaitForChild("CollectBone")
 
 local pathPoints = {
     Vector3.new(38, -65, -288),
-    Vector3.new(38, -65, -111309)
+    Vector3.new(38, -65, -382309)
 }
-
-local AutoFarmTab = MainTab
 
 local tweenSpeed = 5
 
-AutoFarmTab:AddTextbox({
+FarmTab:AddTextbox({
     Name = "Tween Speed",
     Default = "5",
     TextDisappear = false,
@@ -491,7 +489,7 @@ AutoFarmTab:AddTextbox({
     end
 })
 
-AutoFarmTab:AddToggle({
+FarmTab:AddToggle({
     Name = "Auto Farm Bone (beta)",
     Default = false,
     Callback = function(state)
@@ -526,9 +524,6 @@ AutoFarmTab:AddToggle({
         end
     end
 })
-
-AutoFarmTab:AddLabel("Don't Use it crash you phone")
-AutoFarmTab:AddLabel("I'll fix it later maybe in 67 year")
 
 local CreditTab = Window:MakeTab({
     Name = "Credit",
