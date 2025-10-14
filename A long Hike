@@ -90,6 +90,35 @@ MainTab:AddToggle({
 	end
 })
 
+MainTab:AddLabel("Bone")
+
+local autoBone = false
+
+MainTab:AddToggle({
+	Name = "Auto Collect Bone",
+	Default = false,
+	Callback = function(state)
+		autoBone = state
+		task.spawn(function()
+			while autoBone do
+				local bone = workspace:FindFirstChild("Objects") and workspace.Objects:FindFirstChild("Bone")
+				if bone then
+					local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+					if hrp then
+						hrp.CFrame = bone.CFrame + Vector3.new(0, 3, 0)
+						task.wait(0.2)
+						pcall(function()
+							local args = { bone }
+							game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CollectBone"):FireServer(unpack(args))
+						end)
+					end
+				end
+				task.wait(0.5)
+			end
+		end)
+	end
+})
+
 MainTab:AddLabel("Melee")
 
 
