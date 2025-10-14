@@ -503,6 +503,9 @@ AutoFarmTab:AddToggle({
     end
 })
 
+AutoFarmTab:AddLabel("Don't Use it crash you phone")
+AutoFarmTab:AddLabel("I'll fix it later maybe in 67 year")
+
 local CreditTab = Window:MakeTab({
     Name = "Credit",
     PremiumOnly = false
