@@ -395,7 +395,7 @@ DupeTab:AddButton({
 })
 
 DupeTab:AddLabel("Money")
-DupeTab:AddLabel("Didn't work")
+DupeTab:AddLabel("Read How it work on dc update log")
 
 local dupeAmount = 4
 
